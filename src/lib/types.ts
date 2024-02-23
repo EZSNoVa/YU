@@ -8,6 +8,7 @@ import type { Writable } from "svelte/store";
  * Used to avoid typos and to have a single source of truth
  */
 export const enum Events {
+    CONNECT = "connect",
 }
 
 export type ToastType = Writable<{

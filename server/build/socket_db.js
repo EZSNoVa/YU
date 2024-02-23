@@ -3,6 +3,7 @@ import "dotenv/config";
 // Database URI and name
 const DB_URI = process.env.DB_URI;
 const DB_NAME = "rooms";
+const COLLECTION = "room";
 if (!DB_URI) {
     throw new Error("Database URI is not set");
 }
@@ -17,7 +18,7 @@ const client = new MongoClient(DB_URI, {
 });
 client.connect();
 const db = client.db(DB_NAME);
-const collection = db.collection("room");
+const collection = db.collection(COLLECTION);
 /**
  * Connect a user to the room
  * - If the room does not exist, create a new room
