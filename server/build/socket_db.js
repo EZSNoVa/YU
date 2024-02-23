@@ -2,7 +2,7 @@ import { MongoClient, ServerApiVersion } from 'mongodb';
 import "dotenv/config";
 // Database URI and name
 const DB_URI = process.env.DB_URI;
-const DB_NAME = "socket-users";
+const DB_NAME = "rooms";
 if (!DB_URI) {
     throw new Error("Database URI is not set");
 }
@@ -15,64 +15,49 @@ const client = new MongoClient(DB_URI, {
     },
     maxPoolSize: 100,
 });
-// Connect the client to the server (optional starting in v4.7)
 client.connect();
 const db = client.db(DB_NAME);
-const collection = db.collection("users");
-// Document type
-// Create a user online record
-export async function create_user(socketId, username) {
-    const user = {
-        username,
-        socketId,
-        status: "offline" /* Status.OFFLINE */
-    };
-    await collection.insertOne(user);
-    return user;
-}
-// Check if user exists
-export async function exists(username) {
-    const user = await collection.findOne({ username }, { projection: { _id: 1 } });
-    return !!user;
-}
-// Get user status
-export async function get_status(username) {
-    const user = await collection.findOne({ username }, { projection: { status: 1 } });
-    if (!user) {
-        return "offline" /* Status.OFFLINE */;
+const collection = db.collection("room");
+/**
+ * Connect a user to the room
+ * - If the room does not exist, create a new room
+ * - If the room exists, add the user to the room
+ */
+export async function connect(room_id, uid) {
+    let room = await collection.findOne({ id: room_id });
+    if (!room) {
+        // Create a new room
+        room = {
+            id: room_id,
+            creation_time: new Date(),
+            jokers_used: 0,
+            used_responses: {
+                "DO_IT": 0,
+                "PLUS_FOUR": 0,
+                "REVERSE": 0,
+            },
+            state: null,
+            members: [uid],
+        };
+        await collection.insertOne(room);
+        return room;
     }
-    return user.status ?? "offline" /* Status.OFFLINE */;
+    else {
+        // Add the user to the room
+        room.members.push(uid);
+        await collection.updateOne({ id: room_id }, { $set: { members: room.members } });
+        return room;
+    }
 }
-// Set user status
-export async function set_status(username, status) {
-    await collection.updateOne({ username }, { $set: { status } });
-}
-// Log user connection
-export async function connect(socketId, username) {
-    const user = {
-        username,
-        socketId,
-        status: "online" /* Status.ONLINE */
-    };
-    await collection.updateOne({ username }, { $set: user }, { upsert: true });
-}
-// Log user disconnection
-export async function disconnect(socket_id) {
-    await collection.updateOne({ socketId: socket_id }, { $set: { status: "offline" /* Status.OFFLINE */, socketId: undefined } });
-}
-// Check if user is online
-export async function is_online(username) {
-    const status = await get_status(username);
-    return status === "online" /* Status.ONLINE */;
-}
-// Get username
-export async function get_username(socketId) {
-    const user = await collection.findOne({ socketId }, { projection: { username: 1 } });
-    return user ? user.username : null;
-}
-// Get online users from a list of usernames
-export async function get_online_from(usernames) {
-    console.log("get_online_from", usernames);
-    const onlineUsers = await collection.find({ username: { $in: usernames }, status: "online" /* Status.ONLINE */ }).toArray();
-    return onlineUsers;
+export async function disconnect(room_id, uid) {
+    let room = await collection.findOne({ id: room_id });
+    if (!room) {
+        return;
+    }
+    else {
+        // Remove the user from the room
+        room.members = room.members.filter(member => member !== uid);
+        await collection.updateOne({ id: room_id }, { $set: { members: room.members } });
+        return room;
+    }
 }

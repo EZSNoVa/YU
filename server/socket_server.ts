@@ -14,7 +14,6 @@ export default function injectSocketIO(server: ServerOptions) {
     });
 
     io.on('connection', (socket) => {
-
         // User connects to the room 
         socket.on(Events.CONNECT, async (room_id: string, username: string) => {
             await connect(room_id, username);

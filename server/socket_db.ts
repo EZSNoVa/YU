@@ -26,7 +26,11 @@ client.connect();
 const db = client.db(DB_NAME);
 const collection = db.collection<RoomType>("room");
 
-// Connect a user to the room
+/**
+ * Connect a user to the room
+ * - If the room does not exist, create a new room
+ * - If the room exists, add the user to the room
+ */
 export async function connect(room_id: string, uid: UID) {
     let room = await collection.findOne({ id : room_id }) as RoomType;
     if (!room) {
@@ -50,6 +54,19 @@ export async function connect(room_id: string, uid: UID) {
     else {
         // Add the user to the room
         room.members.push(uid);
+        await collection.updateOne({ id: room_id }, { $set: { members: room.members } });
+        return room;
+    }
+}
+
+export async function disconnect(room_id: string, uid: UID) {
+    let room = await collection.findOne({ id : room_id }) as RoomType;
+    if (!room) {
+        return;
+    }
+    else {
+        // Remove the user from the room
+        room.members = room.members.filter(member => member !== uid);
         await collection.updateOne({ id: room_id }, { $set: { members: room.members } });
         return room;
     }
