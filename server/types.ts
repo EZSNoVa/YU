@@ -8,7 +8,7 @@ export type UID = string; // User ID -- unique identifier for each user. Generat
 
 export type RoomType = {
     id: string,
-    creation_time: Date, // 
+    creation_time: Date, // Date when the room was created
     jokers_used: number,
     used_responses: Record<ResponseType, number>, // {response: count}
     state: GameState | null, // Game state is created once both players join, if null game hasn't started, meaning both players are in waiting room
@@ -42,5 +42,6 @@ export type GameState = {
  * Used to avoid typos and to have a single source of truth
  */
 export const enum Events {
-    CONNECT = "connect",
+    JOIN = "join room",
+    ROOM_EXISTS = "room exists", // args (room_id: string, callback: (exists: boolean) => void) Callback is used to return the result of the query
 }
