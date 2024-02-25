@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ActionData, PageServerData } from './$types';
-	import Toast from '$lib/components/Toast.svelte';
-	import toast from '$lib/stores/toast';
+	import Toast from '$components/Toast.svelte';
+	import toast from '$stores/toast';
 
 	export let data: PageServerData;
 	export let form: ActionData;
@@ -24,13 +24,14 @@
 </script>
 
 <main class="container h-screen flex flex-col justify-center items-center bg-inherit max-w-md">
+
+	<Toast />
+
 	<!-- Logo and title -->
 	<div class="flex flex-col-reverse justify-center items-center mb-4">
 		<img src="/logo.png" alt="Uno logo" class="squeeze w-24 h-24" loading="eager" />
 		<h1 class="text-4xl font-bold">Yumnaa's Uno</h1>
 	</div>
-
-	<Toast />
 
 	<!-- Create new room -->
 	<form class="container mx-auto flex flex-col m-1" method="post">

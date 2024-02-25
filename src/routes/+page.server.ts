@@ -2,7 +2,7 @@ import { redirect, type Actions, type Cookies } from "@sveltejs/kit";
 import { v4 as uuid } from "uuid";
 import type { PageServerLoad } from "./$types";
 import { ws } from "$lib/websocket";
-import { Events } from "$lib/types";
+import { Events } from "$types";
 
 export const load: PageServerLoad = async ({ cookies }) => {
     /**

@@ -1,5 +1,5 @@
 import { ws } from "$lib/websocket";
-import { Events }  from "$lib/types";
+import { Events }  from "$types";
 import type { LayoutServerLoad } from "./$types";
 import { redirect } from "@sveltejs/kit";
 

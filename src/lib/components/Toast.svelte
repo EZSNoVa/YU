@@ -1,5 +1,5 @@
 <script lang="ts">
-	import toast from '$lib/stores/toast';
+	import toast from '$stores/toast';
 
 	/**
 	 * A general porpuse notification.

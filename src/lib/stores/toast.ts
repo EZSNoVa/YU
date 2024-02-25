@@ -1,4 +1,4 @@
-import type { ToastType } from "$lib/types";
+import type { ToastType } from "$types";
 import { writable } from "svelte/store";
 
 

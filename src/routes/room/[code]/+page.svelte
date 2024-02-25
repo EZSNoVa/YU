@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Countdown from '$lib/components/Countdown.svelte';
+  import Countdown from '$components/Countdown.svelte';
 	import { writable } from 'svelte/store';
 </script>
 

@@ -1,3 +1,5 @@
+import type { Writable } from "svelte/store";
+
 export enum ResponseType {
     DO_IT = "DO_IT",
     PLUS_FOUR = "PLUS_FOUR",
@@ -45,3 +47,11 @@ export const enum Events {
     JOIN = "join room",
     ROOM_EXISTS = "room exists", // args (room_id: string, callback: (exists: boolean) => void) Callback is used to return the result of the query
 }
+
+
+export type ToastType = Writable<{
+    type: "info" | "error" 
+    title: string,
+    message: string,
+    duration?: number
+} | null>;
