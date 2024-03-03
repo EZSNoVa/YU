@@ -1,7 +1,7 @@
 {
-    "name": "slash-socket-server",
+    "name": "yu-socket-server",
     "version": "1.0.0",
-    "description": "Slash Socket Server",
+    "description": "Yumnaa's Uno Socket Server",
     "main": "./build/server.js",
     "scripts": {
         "start": "tsc ./server.ts --outDir ./build --rootDir ./ --esModuleInterop --target esnext --moduleResolution node && node ./build/server.js"

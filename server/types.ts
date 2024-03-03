@@ -1,5 +1,18 @@
 import type { Writable } from "svelte/store";
 
+
+export const Jokers: Record<string, string> = {
+    Skip: "Avoid having to comply with the sentence",
+    Mirror: "Makes the other player have to comply with the sentence as well. Only once; +4 doesn't affect Mirror",
+    Gaze: "10% worth of words of the sentence will be revealed",
+    Decoy: "At the end of the round, round will be restarted",
+    Darkness: "Respondent options will be hidden and randomly mixed-up",
+    Illusion: "Time will be reduced by half, third, or quarter, randomly",
+    Foresight: "Prevent other player from using a joker",
+    Revelation: "Reveal 2 of other player's jokers"
+};
+
+
 export enum ResponseType {
     DO_IT = "DO_IT",
     PLUS_FOUR = "PLUS_FOUR",
@@ -19,8 +32,8 @@ export type RoomType = {
 
 export type GameState = {
     round: number,
-    stage: 0 | 1 | 2,
-    jokers: Record<UID, string[]>, // {username: [joker1, joker2, joker3]}. 
+    stage: 1 | 2 | 3
+    jokers: Record<UID, keyof typeof Jokers[]>, // {username: [joker1, joker2, joker3]}. 
     judge_index: 0 | 1, // Index of the member that is the judge
 
     // Role related
@@ -45,9 +58,18 @@ export type GameState = {
  */
 export const enum Events {
     JOIN = "join room",
-    ROOM_EXISTS = "room exists", // args (room_id: string, callback: (exists: boolean) => void) Callback is used to return the result of the query
-}
 
+    PING = "ping", // (room_id: string) Ping the other player
+    PONG = "pong", // (room_id: string) Pong the other player
+
+    ROOM_EXISTS = "room exists", // (room_id: string, callback: (exists: boolean) => void) Callback is used to return the result of the query
+    
+    GET_ROOM = "get room", // (room_id: string, callback: (room: RoomType) => void) Callback is used to return the result of the query
+    UPDATE_ROOM = "update room", // (room_id: string, new_room: RoomType) => Update room value in dabatase
+
+    PLAYER_JOINED = "player joined", // Called after JOIN. args (uid: UID) Tell other players that a player has joined
+    PLAYER_LEFT = "player left", // Called after disconect. args (uid: UID) Tell other players that a player has left
+}
 
 export type ToastType = Writable<{
     type: "info" | "error" 
