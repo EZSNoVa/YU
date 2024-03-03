@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Writable } from "svelte/store";
 
-
     export let seconds = 30;
     export let start: Writable<boolean>;
     export let on_end: () => void;

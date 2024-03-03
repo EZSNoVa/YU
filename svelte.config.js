@@ -17,6 +17,8 @@ const config = {
 			$components: './src/lib/components',
 			$stores: './src/lib/stores',
 			$types: './server/types.ts',
+			$lib: './src/lib',
+			$views: './src/lib/views'
 		}
 	},
 	

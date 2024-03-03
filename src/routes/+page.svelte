@@ -2,21 +2,19 @@
 	import type { ActionData, PageServerData } from './$types';
 	import Toast from '$components/Toast.svelte';
 	import toast from '$stores/toast';
-
-	export let data: PageServerData;
-	export let form: ActionData;
+	
+	export let submit_results: ActionData;
 
 	let room_code: string = '';
-	let username: string = data.username || '';
 
 	/**
 	 * If form submission is successful, redirect to the room page.
 	 * Otherwise, display an error message.
 	 */
-	$: if (form) {
+	$: if (submit_results) {
 		toast.set({
 			type: 'error',
-			message: form.error,
+			message: submit_results.error,
 			title: 'Something is off...',
 			duration: 5000
 		});
@@ -24,7 +22,6 @@
 </script>
 
 <main class="container h-screen flex flex-col justify-center items-center bg-inherit max-w-md">
-
 	<Toast />
 
 	<!-- Logo and title -->
@@ -34,27 +31,8 @@
 	</div>
 
 	<!-- Create new room -->
-	<form class="container mx-auto flex flex-col m-1" method="post">
+	<form class="container mx-auto flex flex-col m-1" method="post" action="/">
 		<input
-			type="text"
-			placeholder="Username"
-			class="w-auto border-1 border-gray-400 p-2 m-1"
-			name="username"
-			bind:value={username}
-			minlength="2"
-			maxlength="16"
-			pattern="[A-Za-z0-9_ ]+"
-			required
-			title="Username must be between 2 and 16 characters long and contain only letters, numbers, spaces and underscores."
-			on:input={() => {
-				// Delete special characters
-				username = username.replace(/[^a-zA-Z0-9_ ]/g, '');
-			}}
-		/>
-
-		<!-- svelte-ignore a11y-autofocus -->
-		<input
-			autofocus={username ? true : false}
 			type="text"
 			placeholder="Room code"
 			class="w-auto border-1 border-gray-400 p-2 m-1"
@@ -74,18 +52,13 @@
 		<div class="flex w-full justify-center">
 			<button
 				class="h-12 w-1/3 m-1
-				border-1 border-red-400 hover:bg-red-500 hover:text-white"
+				border-1 border-violet-400 hover:bg-violet-500 hover:text-white
+				rounded-lg
+				"
 				type="submit"
-				formaction="?/create"
-				>Create</button
 			>
-			<button
-				class="h-12 w-1/3 m-1
-				border-1 border-blue-400 hover:bg-blue-500 hover:text-white"
-				type="submit"
-				formaction="?/join"
-				>Join</button
-			>
+				Join
+			</button>
 		</div>
 	</form>
 </main>
