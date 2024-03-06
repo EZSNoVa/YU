@@ -39,7 +39,6 @@
 
 	}
 
-
 	onMount(() => {
 		ws.emit(Events.JOIN, data.room_code, data.uid);
 

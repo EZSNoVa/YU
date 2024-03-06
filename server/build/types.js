@@ -14,3 +14,8 @@ export var ResponseType;
     ResponseType["PLUS_FOUR"] = "PLUS_FOUR";
     ResponseType["REVERSE"] = "REVERSE";
 })(ResponseType || (ResponseType = {}));
+export var Role;
+(function (Role) {
+    Role["JUDGE"] = "Judge";
+    Role["RESPONDENT"] = "Respondent";
+})(Role || (Role = {}));

@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { connect, disconnect, get_room, get_uid, room_exists, update_room } from './socket_db.js';
+import { connect, disconnect, get_room, get_uid, reset_room, room_exists, update_room } from './socket_db.js';
 export default function injectSocketIO(server) {
     server.maxHttpBufferSize = 1e6; // 10MB 
     const io = new Server(server, {
@@ -39,6 +39,10 @@ export default function injectSocketIO(server) {
         // Update a room's value
         socket.on("update room" /* Events.UPDATE_ROOM */, async (room_id, new_room) => {
             await update_room(room_id, new_room);
+        });
+        // Reset a room's value
+        socket.on("reset room" /* Events.RESET_ROOM */, async (room_id) => {
+            await reset_room(room_id);
         });
     });
     io.on('disconnect', (socket) => {

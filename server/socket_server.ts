@@ -1,5 +1,5 @@
 import { Server, type ServerOptions } from 'socket.io';
-import { connect, disconnect, get_room, get_uid, room_exists, update_room } from './socket_db.js';
+import { connect, disconnect, get_room, get_uid, reset_room, room_exists, update_room } from './socket_db.js';
 import { Events, RoomType, type UID } from './types.js';
 
 export default function injectSocketIO(server: ServerOptions) {
@@ -50,6 +50,11 @@ export default function injectSocketIO(server: ServerOptions) {
         // Update a room's value
         socket.on(Events.UPDATE_ROOM, async (room_id: string, new_room: RoomType) => {
             await update_room(room_id, new_room);
+        });
+
+        // Reset a room's value
+        socket.on(Events.RESET_ROOM, async (room_id: string) => {
+            await reset_room(room_id);
         });
 
     });
