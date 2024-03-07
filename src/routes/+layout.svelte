@@ -4,4 +4,8 @@
   import "../app.css";
 </script>
 
+<svelte:head>
+  <title>YU</title>
+</svelte:head>
+
 <slot />

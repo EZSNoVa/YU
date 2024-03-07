@@ -5,7 +5,7 @@
 </script>
 
 <h1 
-    class="text-4xl font-bold text-center
+    class="text-4xl font-bold text-center m-4
     {role === Role.JUDGE ? 'text-red-400' : 'text-blue-400'}
     "
 >

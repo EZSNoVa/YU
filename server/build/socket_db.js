@@ -1,3 +1,4 @@
+import { Jokers } from './types.js';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import 'dotenv/config';
 // Database URI and name
@@ -56,18 +57,7 @@ export async function connect(room_id, uid, socket_id) {
     let room = (await collection.findOne({ id: room_id }));
     if (!room) {
         // Create a new room
-        room = {
-            id: room_id,
-            creation_time: new Date(),
-            jokers_used: 0,
-            used_responses: {
-                DO_IT: 0,
-                PLUS_FOUR: 0,
-                REVERSE: 0
-            },
-            state: null,
-            members: [uid]
-        };
+        room = default_room(room_id, uid);
         await collection.insertOne(room);
         return room;
     }
@@ -117,7 +107,7 @@ export async function room_exists(room_id) {
     // Check if the room has been existing for more than 24 hours
     const creation_time = room.creation_time;
     const now = new Date();
-    const diff = now.getTime() - (new Date(creation_time)).getTime();
+    const diff = now.getTime() - new Date(creation_time).getTime();
     const diff_hours = diff / (1000 * 60 * 60);
     if (diff_hours > 24 || room.state?.round === 10) {
         await collection.deleteOne({ id: room_id });
@@ -128,20 +118,8 @@ export async function room_exists(room_id) {
 export async function get_room(room_id) {
     return (await collection.findOne({ id: room_id }, { projection: { _id: 0 } }));
 }
-export async function update_room(room_id, new_room) {
-    if ((await get_room(room_id)) != new_room) {
-        await collection.updateOne({ id: room_id }, 
-        // Update the room state.jokers should be "append" not "set". All other fields should be "set"
-        {
-            $set: {
-                creation_time: new_room.creation_time,
-                jokers_used: new_room.jokers_used,
-                used_responses: new_room.used_responses,
-                members: new_room.members,
-                state: new_room.state
-            },
-        });
-    }
+export async function update_room(room_id, query) {
+    await collection.updateOne({ id: room_id }, query);
 }
 /**
  * Reset a rooms value (State and metrics) while maintaining members and id (meta data)
@@ -156,7 +134,37 @@ export async function reset_room(room_id) {
                 PLUS_FOUR: 0,
                 REVERSE: 0
             },
-            state: null
+            state: default_room_state()
         }
     });
+}
+// UTILS --------------------------------------------------
+function get_random_joker() {
+    let keys = Object.keys(Jokers);
+    return keys[Math.floor(Math.random() * keys.length)];
+}
+function default_room_state() {
+    return {
+        round: 0,
+        stage: 1,
+        judge_index: 0,
+        jokers: {
+            0: [get_random_joker(), get_random_joker(), get_random_joker()],
+            1: [get_random_joker(), get_random_joker(), get_random_joker()]
+        }
+    };
+}
+function default_room(room_id, uid) {
+    return {
+        id: room_id,
+        creation_time: new Date(),
+        jokers_used: 0,
+        used_responses: {
+            DO_IT: 0,
+            PLUS_FOUR: 0,
+            REVERSE: 0
+        },
+        state: default_room_state(),
+        members: [uid]
+    };
 }

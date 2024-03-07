@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ws } from '$lib/websocket';
-	import { Events, type RoomType } from '$types';
+	import { Events, type RoomType, type UID } from '$types';
 	import { onMount } from 'svelte';
     import WaitingRoom from '$lib/views/waiting_room.svelte';
 	import End from '$lib/views/end.svelte';
@@ -26,32 +26,30 @@
      * Each round must travel through Stage 1-3
     */
     export let data;
+    const uid: UID = data.uid;
+    const room_code: string = data.room_code;
 
-    let room = writable({} as RoomType);
+    let room = writable({ state: { round: 0 }} as RoomType);
 
-    onMount(() => {
-        // Ensure user is in room.
-		ws.emit(Events.JOIN, data.room_code, data.uid);
+		ws.emit(Events.JOIN, room_code, uid);
 
         // Get room data
-        ws.emit(Events.GET_ROOM, data.room_code, (_room: RoomType) => {
+        ws.emit(Events.GET_ROOM, room_code, (_room: RoomType) => {
             room.set(_room);
         });
-
-    })
 </script>
 
-{#if !$room.state}
+{#if $room.state.round == 0}
     <WaitingRoom 
         {room}
-        {data}
+        {uid}
     /> 
 
 {:else if $room.state.round > 10}
     <End />
 
 {:else if $room.state.stage == 1}
-    <Stage_1 />
+    <Stage_1 uid={data.uid} {room} />
 
 {:else if $room.state.stage == 2}
     <Stage_2 />

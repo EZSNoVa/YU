@@ -2,11 +2,18 @@
 	export let round: number;
 </script>
 
-<!-- Postion round at bottom left corner -->
-<div class="relative bottom-0 left-0 p-2">
-	<div class="rounded-lg border border-white text-white bg-transparent m-4">
-		<p class="text-balance text-base">
-			Round: {round}
-		</p>
-	</div>
+<div class="rounded-lg border border-white text-white bg-transparent m-2 p-2 bottom-left">
+  <p class="text-center font-medium">
+    Round: {round}
+  </p>
 </div>
+
+<style>
+  .bottom-left {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+	margin: 20px;
+  }
+</style>
+

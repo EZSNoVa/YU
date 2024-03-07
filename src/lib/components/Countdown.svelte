@@ -1,9 +1,14 @@
 <script lang="ts">
+	import { CountdownState } from "$types";
+	import { onMount } from "svelte";
 	import type { Writable } from "svelte/store";
 
     export let seconds = 30;
-    export let start: Writable<boolean>;
+    export let state: Writable<CountdownState>;
     export let on_end: () => void;
+    export let styles = "w-64 h-64 m-4";
+ 
+    const initial_seconds = seconds; // store the initial value
 
     let interval: string | number | NodeJS.Timeout | undefined;
     let is_running = false;
@@ -20,17 +25,49 @@
         }, 1000);
     }
 
+    function stop_countdown() {
+        clearInterval(interval);
+        is_running = false;
+    }
+
     function reset_countdown() {
         clearInterval(interval);
         seconds = 0;
+    }   
+
+    function handle(state: CountdownState) {
+        switch (state) {
+            case CountdownState.START:
+                start_countdown();
+                break;
+
+            case CountdownState.STOP:
+                stop_countdown();
+                break;
+
+            case CountdownState.RESET:
+                reset_countdown();
+                break;
+
+            default:
+                break;
+        }
     }
 
-    $: start ? start_countdown() : reset_countdown();
+    $: handle($state);
 
-</script>
+    state.subscribe((value) => {
+        handle(value);
+    });
+
+  </script>
 
 
-<div 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div
+    on:click
+
     aria-label="Countdown timer"
     aria-roledescription="button"
     aria-pressed={is_running}
@@ -38,8 +75,8 @@
         {is_running ? 'pulse' : 'squeeze'}
 
         border-4 border-purple-500
-        w-64 h-64 rounded-full
-
+        rounded-full
+        {styles}
         transition duration-300 ease-in-out
         
         hover:scale-105 hover:border-purple-300 

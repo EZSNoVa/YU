@@ -1,5 +1,5 @@
-import { GameState, RoomType, UID } from './types.js';
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { GameState, JokerList, Jokers, RoomType, UID } from './types.js';
+import { MongoClient, ServerApiVersion, UpdateFilter } from 'mongodb';
 import 'dotenv/config';
 
 // Database URI and name
@@ -67,21 +67,11 @@ export async function connect(room_id: string, uid: UID, socket_id: string) {
 	let room = (await collection.findOne({ id: room_id })) as RoomType;
 	if (!room) {
 		// Create a new room
-		room = {
-			id: room_id,
-			creation_time: new Date(),
-			jokers_used: 0,
-			used_responses: {
-				DO_IT: 0,
-				PLUS_FOUR: 0,
-				REVERSE: 0
-			},
-			state: null,
-			members: [uid]
-		};
+		room = default_room(room_id, uid);
 
 		await collection.insertOne(room);
 		return room;
+
 	} else {
 		// Add the user to the room if the user is not already in the room
 		if (room.members.includes(uid)) {
@@ -134,7 +124,7 @@ export async function room_exists(room_id: string): Promise<boolean> {
 	// Check if the room has been existing for more than 24 hours
 	const creation_time = room.creation_time;
 	const now = new Date();
-	const diff = now.getTime() - (new Date(creation_time)).getTime();
+	const diff = now.getTime() - new Date(creation_time).getTime();
 	const diff_hours = diff / (1000 * 60 * 60);
 	if (diff_hours > 24 || room.state?.round === 10) {
 		await collection.deleteOne({ id: room_id });
@@ -147,23 +137,11 @@ export async function get_room(room_id: string): Promise<RoomType | null> {
 	return (await collection.findOne({ id: room_id }, { projection: { _id: 0 } })) as RoomType;
 }
 
-export async function update_room(room_id: string, new_room: RoomType) {
-	if ((await get_room(room_id)) != new_room) {
-		await collection.updateOne(
-			{ id: room_id },
-
-			// Update the room state.jokers should be "append" not "set". All other fields should be "set"
-			{
-				$set: {
-					creation_time: new_room.creation_time,
-					jokers_used: new_room.jokers_used,
-					used_responses: new_room.used_responses,
-					members: new_room.members,
-                    state: new_room.state
-				},
-			}
-		);
-	}
+export async function update_room(
+	room_id: string,
+	query: UpdateFilter<RoomType> | Partial<RoomType>
+) {
+	await collection.updateOne({ id: room_id }, query);
 }
 
 /**
@@ -181,8 +159,43 @@ export async function reset_room(room_id: string) {
 					PLUS_FOUR: 0,
 					REVERSE: 0
 				},
-				state: null
+				state: default_room_state()
 			}
 		}
 	);
+}
+
+// UTILS --------------------------------------------------
+
+function get_random_joker() {
+	let keys = Object.keys(Jokers);
+	return keys[Math.floor(Math.random() * keys.length)] as keyof typeof Jokers;
+}
+
+
+function default_room_state(): GameState {
+	return {
+		round: 0,
+		stage: 1,
+		judge_index: 0,
+		jokers: {
+			0: [get_random_joker(), get_random_joker(), get_random_joker()] as JokerList,
+			1: [get_random_joker(), get_random_joker(), get_random_joker()] as JokerList
+		}
+	};
+}
+
+function default_room(room_id: string, uid: UID): RoomType {
+	return {
+		id: room_id,
+		creation_time: new Date(),
+		jokers_used: 0,
+		used_responses: {
+			DO_IT: 0,
+			PLUS_FOUR: 0,
+			REVERSE: 0
+		},
+		state: default_room_state(),
+		members: [uid]
+	};
 }
