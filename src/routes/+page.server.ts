@@ -14,6 +14,6 @@ export const actions = {
 
         // This creates a new room (if it doesn't exist) and connects the user to it
         ws.emit(Events.JOIN, room_code, cookies.get("uid") as string);
-        throw redirect(303, `/room/${room_code}`);
+        throw redirect(302, `/room/${room_code}`);
     }
 } satisfies Actions;

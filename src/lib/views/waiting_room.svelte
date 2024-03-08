@@ -8,7 +8,9 @@
 	export let uid: UID;
 	export let room: Writable<RoomType>;
 
-	const room_code = $room.id;
+
+	let room_code = $room.id;
+	$: room_code = $room.id;
 
 	let player_count = writable(1);
 	const needed_players = 2;
